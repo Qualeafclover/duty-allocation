@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>当番割り当てシステム</title>
+</head>
+<body>
+  <h1>ユーザー一覧</h1>
+  <ul id="users"></ul>
+  <script>
+    fetch("/api/users")
+      .then((response) => response.json())
+      .then((users) => {
+        const list = document.getElementById("users");
+        for (const user of users) {
+          const item = document.createElement("li");
+          item.textContent = `${user.name}: ${user.task_points} ポイント`;
+          list.append(item);
+        }
+      });
+  </script>
+</body>
+</html>
