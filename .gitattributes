@@ -1,0 +1,4 @@
+# Always check out text files with LF line endings, whatever the user's
+# Git settings. The scripts, Makefile and Docker files run on Linux and
+# break with Windows (CRLF) line endings.
+* text=auto eol=lf

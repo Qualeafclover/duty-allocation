@@ -9,14 +9,23 @@ CHROME = DOWNLOADS / "chrome-linux64" / "chrome"
 CHROMEDRIVER = DOWNLOADS / "chromedriver-linux64" / "chromedriver"
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--headed",
+        action="store_true",
+        help="Show the Chrome window instead of running headless.",
+    )
+
+
 @pytest.fixture
-def driver():
+def driver(request):
     if not CHROME.exists() or not CHROMEDRIVER.exists():
         pytest.fail("Chrome not found. Run `make chrome` first.")
 
     options = webdriver.ChromeOptions()
     options.binary_location = str(CHROME)
-    options.add_argument("--headless=new")
+    if not request.config.getoption("--headed"):
+        options.add_argument("--headless=new")
 
     driver = webdriver.Chrome(service=Service(str(CHROMEDRIVER)), options=options)
     yield driver

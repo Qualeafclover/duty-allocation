@@ -10,23 +10,22 @@
 sudo apt update
 sudo apt install -y git make curl unzip wget
 curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# E2E テストの Chrome に必要なシステムライブラリをまとめてインストールします
-wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo apt install -y ./google-chrome-stable_current_amd64.deb
 ```
 
 Docker:
 
 - **Ubuntu / Debian:** [Docker Engine](https://docs.docker.com/engine/install/) を Compose プラグインと一緒にインストールします。
 - **WSL:** Windows に [Docker Desktop](https://docs.docker.com/desktop/features/wsl/) をインストールし、使用する Ubuntu ディストリビューションの WSL 統合を有効にします。
+  - Docker Desktop の **Settings > Resources > WSL integration** を開き、「Configure which WSL 2 distros you want to access Docker from.」の下にある **Enable integration with my default WSL distro** をオンにします。既定以外のディストリビューションを使う場合は、その下の一覧で該当するディストリビューションもオンにして、**Apply** を押してください。
+  - `make up`、`make test`、`make reset` を実行する前に、Windows 側で Docker Desktop を起動しておいてください。起動していないと、WSL から `docker` コマンドが見つからない、または Docker に接続できないというエラーになります。
 
 Linux のシェルで `docker compose version` が動くことを確認してください。
 
 ### WSL での注意点
 
-- リポジトリは `/mnt/c/...` ではなく、`~/projects/duty-allocation` のように Linux 側にクローンしてください。
-- Git for Windows ではなく、WSL 内の Git を使ってください。
+- Windows の VS Code と Git for Windows で、そのまま作業できます。改行コードはリポジトリ側の設定（`.gitattributes`、`.vscode/settings.json`）で LF に揃えているので、各自の Git の設定を変える必要はありません。
+- `make` などのコマンドは WSL のターミナルで実行します。Windows 側（例: `C:\projects\duty-allocation`）にクローンした場合は、WSL から `/mnt/c/projects/duty-allocation` に移動して実行してください。
+- Windows 側のフォルダーは WSL から読み書きすると遅いため、`make setup` や `make up` に時間がかかることがあります。速さが気になる場合は、`~/projects/duty-allocation` のように Linux 側にクローンし、VS Code の [WSL 拡張機能](https://code.visualstudio.com/docs/remote/wsl)で開いてください。
 
 ## はじめかた
 
@@ -37,6 +36,28 @@ make up
 
 <http://localhost:8000> を開き、サンプルユーザーの Alice と Bob が表示されれば成功です。ログはこのターミナルに流れ続け、Ctrl+C でアプリが停止します。
 
+### E2E テスト用のシステムライブラリ
+
+`make setup`（`make chrome`）は Chrome と ChromeDriver を `downloads/` にダウンロードしますが、それらが使う共有ライブラリ（`libnss3`、`libnspr4`、`libasound2`、GTK など）は OS 側に必要です。WSL や最小構成の Ubuntu には入っていないことが多いので、`make setup` のあとに一度だけ、Chrome が同梱しているパッケージ一覧から apt でインストールしてください。
+
+```bash
+sudo apt-get satisfy -y --no-install-recommends "$(paste -sd, downloads/chrome-linux64/deb.deps)"
+```
+
+Chrome のバージョンを上げて必要なライブラリが増えた場合も、同じコマンドを実行してください。
+
+ライブラリが足りないと、`make e2e` が次のエラーで失敗します。
+
+```
+WebDriverException: Message: Service .../chromedriver unexpectedly exited. Status code was: 127
+```
+
+足りないライブラリは次のコマンドで確認できます。
+
+```bash
+ldd downloads/chromedriver-linux64/chromedriver downloads/chrome-linux64/chrome | grep "not found"
+```
+
 ## コマンド
 
 | コマンド | 内容 |
@@ -46,7 +67,7 @@ make up
 | `make up` | アプリをビルドして起動し、ログを表示します |
 | `make down` | コンテナを停止して削除します（データベースのデータは残ります） |
 | `make test` | Docker 内でユニットテストを実行します |
-| `make e2e` | ローカルで Selenium テストを実行します（別のターミナルで `make up` が必要です） |
+| `make e2e` | ローカルで Selenium テストを実行します（別のターミナルで `make up` が必要です）。`make e2e V=1` で Chrome のウィンドウを表示し、テスト名を一覧表示します |
 | `make reset` | **データベースのデータをすべて削除し**、`db/init.sql` から作り直してアプリを起動します |
 
 `make test` は、データベースが起動していなければ起動します。アプリを起動していない場合は、終わったあとに `make down` で停止してください。

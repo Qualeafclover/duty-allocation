@@ -20,6 +20,9 @@ services:
       dockerfile: backend/Dockerfile
     environment:
       DATABASE_URL: postgresql+psycopg://duty:password@db:5432/duty
+      # Poll for file changes so --reload also works when the repo is on the
+      # Windows drive (/mnt/c), where file change events don't reach Docker
+      WATCHFILES_FORCE_POLLING: "true"
     ports:
       - "8000:8000"
     depends_on:
