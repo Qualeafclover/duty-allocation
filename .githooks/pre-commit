@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Blocks commits directly on main. Turned on by `make setup`.
+
+# Allow the very first commit in a new repository
+git rev-parse --verify --quiet HEAD >/dev/null || exit 0
+
+branch="$(git branch --show-current)"
+
+if [[ "$branch" == "main" ]]; then
+    cat >&2 <<'EOF'
+main ブランチに直接コミットすることはできません。
+先に作業用のブランチを作ってください（変更はそのまま引き継がれます）:
+
+    git switch -c <ブランチ名>
+
+その後、もう一度コミットしてください。
+EOF
+    exit 1
+fi

@@ -1,8 +1,9 @@
 .PHONY: setup chrome up down test e2e reset
 
-# Local Python environment and Chrome for e2e tests
+# Local Python environment, Chrome for e2e tests, and Git hooks
 setup: chrome
 	uv sync --group e2e
+	git config core.hooksPath .githooks
 
 # Download Chrome and ChromeDriver: latest, or `make chrome VERSION=142.0.7444.59`
 chrome:
