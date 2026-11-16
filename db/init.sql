@@ -1,7 +1,18 @@
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
+    login_id TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
+    -- argon2 hash; NULL means the user can't log in yet
+    password_hash TEXT,
     task_points INTEGER NOT NULL DEFAULT 0
+);
+
+-- Login sessions; the browser holds the token in a cookie, we only store its hash
+CREATE TABLE sessions (
+    token_hash TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_dt TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expires_dt TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE rand_source (
@@ -63,5 +74,5 @@ CREATE TABLE log (
     details TEXT
 );
 
--- Sample data for the home page and e2e test
-INSERT INTO users (name) VALUES ('Alice'), ('Bob');
+-- Sample users are created by the backend on startup (app/seed.py),
+-- because their passwords need to be hashed

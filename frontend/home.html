@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>マイページ</title>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            color: #0f172a;
+        }
+
+        header {
+            background-color: #2563eb;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+        }
+
+        header h1 {
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #4ade80;
+            margin-right: 6px;
+        }
+
+        header button {
+            background: white;
+            color: #2563eb;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        header button:hover {
+            background-color: #dbeafe;
+        }
+
+        main {
+            max-width: 640px;
+            margin: 30px auto;
+            padding: 0 16px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        dl {
+            display: grid;
+            grid-template-columns: max-content 1fr;
+            gap: 8px 20px;
+            margin: 0;
+        }
+
+        dt {
+            color: #64748b;
+        }
+
+        dd {
+            margin: 0;
+        }
+
+        .points {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        li.me {
+            font-weight: bold;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>納得のできる抽選システム</h1>
+        <div class="user-badge" id="user-badge" hidden>
+            <span><span class="status-dot"></span><span id="badge-name"></span> でログイン中</span>
+            <button type="button" id="logout-button">ログアウト</button>
+        </div>
+    </header>
+
+    <main id="content" hidden>
+        <div class="card">
+            <h2 id="welcome"></h2>
+            <dl>
+                <dt>ユーザーID</dt>
+                <dd id="login-id"></dd>
+                <dt>ログイン日時</dt>
+                <dd id="login-dt"></dd>
+                <dt>セッション有効期限</dt>
+                <dd id="expires-dt"></dd>
+            </dl>
+        </div>
+
+        <div class="card">
+            <h2>あなたのポイント</h2>
+            <div class="points" id="points"></div>
+        </div>
+
+        <div class="card">
+            <h2>メンバー</h2>
+            <ul id="users"></ul>
+        </div>
+    </main>
+
+    <script>
+        const formatDate = (value) => new Date(value).toLocaleString("ja-JP");
+
+        async function load() {
+            const response = await fetch("/api/me");
+            if (!response.ok) {
+                // Not logged in, or the session expired
+                location.replace("/");
+                return;
+            }
+            const me = await response.json();
+
+            document.getElementById("badge-name").textContent = me.name;
+            document.getElementById("welcome").textContent = `ようこそ、${me.name} さん`;
+            document.getElementById("login-id").textContent = me.login_id;
+            document.getElementById("login-dt").textContent = formatDate(me.login_dt);
+            document.getElementById("expires-dt").textContent = formatDate(me.expires_dt);
+            document.getElementById("points").textContent = `${me.task_points} pt`;
+
+            const users = await fetch("/api/users").then((r) => r.json());
+            const list = document.getElementById("users");
+            for (const user of users) {
+                const item = document.createElement("li");
+                item.textContent = `${user.name}: ${user.task_points} ポイント`;
+                if (user.id === me.id) item.className = "me";
+                list.append(item);
+            }
+
+            document.getElementById("user-badge").hidden = false;
+            document.getElementById("content").hidden = false;
+        }
+
+        document.getElementById("logout-button").addEventListener("click", async () => {
+            await fetch("/api/logout", { method: "POST" });
+            location.replace("/");
+        });
+
+        load();
+    </script>
+
+</body>
+</html>
