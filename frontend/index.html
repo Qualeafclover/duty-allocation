@@ -1,23 +1,81 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <title>当番割り当てシステム</title>
-</head>
-<body>
-  <h1>ユーザー一覧</h1>
-  <ul id="users"></ul>
-  <script>
-    fetch("/api/users")
-      .then((response) => response.json())
-      .then((users) => {
-        const list = document.getElementById("users");
-        for (const user of users) {
-          const item = document.createElement("li");
-          item.textContent = `${user.name}: ${user.task_points} ポイント`;
-          list.append(item);
+    <meta charset="UTF-8">
+    <title>ログインページ</title>
+
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
         }
-      });
-  </script>
+
+        .login-box {
+            background-color: white;
+            width: 320px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #2563eb;
+            font-size: 24px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 15px;
+            box-sizing: border-box;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-box">
+
+        <h1>納得のできる抽選システム</h1>
+
+        <h2>ログイン</h2>
+
+        <form>
+            <input type="email"
+                   placeholder="ユーザーID">
+
+            <input type="password"
+                   placeholder="パスワード">
+
+            <button type="button">ログイン</button>
+        </form>
+
+        <p>新規アカウント登録はこちら</p>
+
+    </div>
+
 </body>
 </html>
