@@ -34,7 +34,19 @@ make setup
 make up
 ```
 
-<http://localhost:8000> を開き、サンプルユーザーの Alice と Bob が表示されれば成功です。ログはこのターミナルに流れ続け、Ctrl+C でアプリが停止します。
+<http://localhost:8000> を開き、下のサンプルユーザーでログインしてマイページが表示されれば成功です。
+
+### サンプルユーザー
+
+アプリの起動時に `backend/app/seed.py` が作成します（`docker-compose.yml` の `SEED_SAMPLE_USERS: "true"` で有効。同じユーザーIDがすでにあれば何もしません）。開発用のアカウントです。
+
+| ユーザーID | パスワード |
+|---|---|
+| `alice` | `alice-password` |
+| `bob` | `bob-password` |
+| `carol` | `carol-password` |
+
+以前のスキーマのデータベースが残っていると、起動時に「データベースのスキーマが古いです」というエラーになります。`make reset` で作り直してください。ログはこのターミナルに流れ続け、Ctrl+C でアプリが停止します。
 
 ### E2E テスト用のシステムライブラリ
 
@@ -85,5 +97,5 @@ ldd downloads/chromedriver-linux64/chromedriver downloads/chrome-linux64/chrome 
 | `backend/app/` | FastAPI アプリとビジネスロジック |
 | `backend/tests/` | ユニットテスト（Docker 内で実行） |
 | `frontend/` | FastAPI が配信する静的ページ |
-| `db/init.sql` | スキーマの草案とサンプルデータ |
+| `db/init.sql` | スキーマの草案 |
 | `e2e/` | Selenium テスト（Docker の外で実行） |
