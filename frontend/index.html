@@ -95,16 +95,16 @@
             <button type="submit" id="login-button">ログイン</button>
         </form>
 
-        <p>新規アカウント登録はこちら</p>
+        <p>アカウントの追加は管理者にお問い合わせください。</p>
 
     </div>
 
     <script>
-        const HOME = "/home.html";
+        const destination = (me) => me.role === "admin" ? "/admin.html" : "/home.html";
 
         // Already logged in: skip the form
-        fetch("/api/me").then((response) => {
-            if (response.ok) location.replace(HOME);
+        fetch("/api/me").then(async (response) => {
+            if (response.ok) location.replace(destination(await response.json()));
         });
 
         const form = document.getElementById("login-form");
@@ -125,7 +125,9 @@
                     }),
                 });
                 if (response.ok) {
-                    location.replace(HOME);
+                    const meResponse = await fetch("/api/me");
+                    if (!meResponse.ok) throw new Error("ログイン情報を取得できませんでした");
+                    location.replace(destination(await meResponse.json()));
                     return;
                 }
                 const body = await response.json().catch(() => ({}));
