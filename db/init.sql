@@ -2,6 +2,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     login_id TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user')),
     -- argon2 hash; NULL means the user can't log in yet
     password_hash TEXT,
     task_points INTEGER NOT NULL DEFAULT 0
