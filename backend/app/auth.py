@@ -31,13 +31,15 @@ def _hash_token(token):
     return hashlib.sha256(token.encode()).hexdigest()
 
 
-def authenticate(conn, login_id, password):
+def authenticate(conn, login_id, password, role="user"):
     """Return the user row if the login ID and password match, else None."""
     user = conn.execute(
-        text("SELECT id, password_hash FROM users WHERE login_id = :login_id"),
+        text("SELECT id, password_hash, role FROM users WHERE login_id = :login_id"),
         {"login_id": login_id},
     ).first()
     if not verify_password(user.password_hash if user else None, password):
+        return None
+    if user.role != role:
         return None
     return user
 
@@ -61,7 +63,7 @@ def get_session_user(conn, token):
         return None
     return conn.execute(
         text(
-            "SELECT u.id, u.login_id, u.name, u.task_points, "
+            "SELECT u.id, u.login_id, u.name, u.task_points, u.role, "
             "       s.created_dt AS login_dt, s.expires_dt "
             "FROM sessions s JOIN users u ON u.id = s.user_id "
             "WHERE s.token_hash = :token_hash AND s.expires_dt > now()"

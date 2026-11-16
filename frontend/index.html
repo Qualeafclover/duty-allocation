@@ -38,6 +38,16 @@
             border-radius: 6px;
         }
 
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 15px;
+            box-sizing: border-box;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: white;
+        }
+
         button {
             width: 100%;
             padding: 12px;
@@ -76,6 +86,10 @@
         <h2>ログイン</h2>
 
         <form id="login-form">
+            <select id="role" name="role" aria-label="ログイン種別">
+                <option value="user">ユーザーとしてログイン</option>
+                <option value="admin">管理者としてログイン</option>
+            </select>
             <input type="text"
                    id="login-id"
                    name="login_id"
@@ -100,11 +114,14 @@
     </div>
 
     <script>
-        const HOME = "/home.html";
+        const destinationFor = (role) => role === "admin" ? "/admin.html" : "/home.html";
 
         // Already logged in: skip the form
-        fetch("/api/me").then((response) => {
-            if (response.ok) location.replace(HOME);
+        fetch("/api/me").then(async (response) => {
+            if (response.ok) {
+                const me = await response.json();
+                location.replace(destinationFor(me.role));
+            }
         });
 
         const form = document.getElementById("login-form");
@@ -122,10 +139,11 @@
                     body: JSON.stringify({
                         login_id: document.getElementById("login-id").value,
                         password: document.getElementById("password").value,
+                        role: document.getElementById("role").value,
                     }),
                 });
                 if (response.ok) {
-                    location.replace(HOME);
+                    location.replace(destinationFor(document.getElementById("role").value));
                     return;
                 }
                 const body = await response.json().catch(() => ({}));
