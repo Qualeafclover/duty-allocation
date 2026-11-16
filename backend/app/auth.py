@@ -61,7 +61,7 @@ def get_session_user(conn, token):
         return None
     return conn.execute(
         text(
-            "SELECT u.id, u.login_id, u.name, u.task_points, "
+            "SELECT u.id, u.login_id, u.name, u.role, u.task_points, "
             "       s.created_dt AS login_dt, s.expires_dt "
             "FROM sessions s JOIN users u ON u.id = s.user_id "
             "WHERE s.token_hash = :token_hash AND s.expires_dt > now()"

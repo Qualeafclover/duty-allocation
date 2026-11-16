@@ -157,6 +157,10 @@
                 return;
             }
             const me = await response.json();
+            if (me.role === "admin") {
+                location.replace("/admin.html");
+                return;
+            }
 
             document.getElementById("badge-name").textContent = me.name;
             document.getElementById("welcome").textContent = `ようこそ、${me.name} さん`;
