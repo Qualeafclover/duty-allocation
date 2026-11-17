@@ -9,7 +9,7 @@ setup: chrome
 chrome:
 	bash scripts/download_chrome.sh $(VERSION)
 
-# Start the app and stream logs: http://localhost:8000
+# Start the app and stream logs: http://127.0.0.1:8000
 up:
 	docker compose up --build
 
@@ -25,7 +25,7 @@ test:
 e2e:
 	uv run --group e2e pytest e2e/ $(if $(V),-v --headed)
 
-# Rebuild the database from init.sql and start the app; deletes all its data
+# データベースのデータをすべて削除する（アプリは起動しない）
+# 次の `make up` で db/init.sql から作り直される
 reset:
 	docker compose down -v
-	docker compose up --build

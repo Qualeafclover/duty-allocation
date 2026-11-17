@@ -2,7 +2,7 @@ from sqlalchemy import text
 
 from app.auth import hash_password
 
-# Development-only accounts, created on startup when SEED_SAMPLE_USERS=true
+# 開発用のアカウント。SEED_SAMPLE_USERS=true のとき起動時に作成する
 SAMPLE_USERS = [
     {"login_id": "alice", "name": "Alice", "password": "alice-password", "task_points": 3},
     {"login_id": "bob", "name": "Bob", "password": "bob-password", "task_points": 1},
@@ -11,7 +11,7 @@ SAMPLE_USERS = [
 
 
 def seed_sample_users(conn):
-    """Create the sample users if they don't exist yet. Existing rows are left alone."""
+    """サンプルユーザーがまだなければ作成する。既存の行は変更しない"""
     for user in SAMPLE_USERS:
         conn.execute(
             text(

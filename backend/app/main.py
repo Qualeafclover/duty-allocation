@@ -1,3 +1,4 @@
+import logging
 import os
 from contextlib import asynccontextmanager
 
@@ -10,15 +11,17 @@ from app import auth
 from app.seed import seed_sample_users
 
 engine = create_engine(os.environ["DATABASE_URL"])
+# Uvicorn と同じ形式でターミナルに出すため、Uvicorn のロガーを使う
+logger = logging.getLogger("uvicorn.error")
 
 
 def check_schema(conn):
-    """Fail with a clear message if the database was created from an older init.sql."""
+    """古い init.sql で作られたデータベースなら、分かりやすいメッセージで止める"""
     has_sessions = conn.execute(text("SELECT to_regclass('sessions') IS NOT NULL")).scalar()
     if not has_sessions:
         raise RuntimeError(
-            "データベースのスキーマが古いです。`make reset` で db/init.sql から作り直してください"
-            "（データベースのデータはすべて削除されます）"
+            "データベースのスキーマが古いです。`make reset` でデータを削除してから、"
+            "もう一度 `make up` を実行してください（データベースのデータはすべて削除されます）"
         )
 
 
@@ -29,6 +32,12 @@ async def lifespan(app):
     if os.environ.get("SEED_SAMPLE_USERS") == "true":
         with engine.begin() as conn:
             seed_sample_users(conn)
+
+    # Uvicorn が表示する 0.0.0.0 はコンテナ内の待ち受けアドレスなので、
+    # ブラウザーで開くべき URL を別に案内する
+    url = os.environ.get("APP_URL", "http://127.0.0.1:8000")
+    line = "=" * 60
+    logger.info(f"{line}\n  起動しました。ブラウザーで次の URL を開いてください:\n    {url}\n{line}")
     yield
 
 
@@ -68,7 +77,7 @@ def login(body: LoginRequest, response: Response):
         max_age=int(auth.SESSION_LIFETIME.total_seconds()),
         httponly=True,
         samesite="lax",
-        # Set COOKIE_SECURE=true when serving over HTTPS
+        # HTTPS で公開するときは COOKIE_SECURE=true にする
         secure=os.environ.get("COOKIE_SECURE") == "true",
     )
     return {"status": "ok"}
