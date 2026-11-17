@@ -10,8 +10,8 @@ SESSION_COOKIE = "session"
 SESSION_LIFETIME = timedelta(days=7)
 
 _hasher = PasswordHasher()
-# Checked against when the login ID doesn't exist, so a wrong ID takes as long
-# as a wrong password and response times don't reveal which IDs are registered
+# 存在しないユーザーIDのときもこのハッシュで照合する。こうすると、ID 違いと
+# パスワード違いで応答時間が変わらず、登録済みの ID を推測されない
 _DUMMY_HASH = _hasher.hash("dummy-password")
 
 
@@ -32,7 +32,7 @@ def _hash_token(token):
 
 
 def authenticate(conn, login_id, password):
-    """Return the user row if the login ID and password match, else None."""
+    """ユーザーIDとパスワードが合えばユーザーの行を、合わなければ None を返す"""
     user = conn.execute(
         text("SELECT id, password_hash FROM users WHERE login_id = :login_id"),
         {"login_id": login_id},
@@ -43,7 +43,7 @@ def authenticate(conn, login_id, password):
 
 
 def create_session(conn, user_id):
-    """Store a new session and return the token to give to the browser."""
+    """セッションを保存し、ブラウザーに渡すトークンを返す"""
     token = secrets.token_urlsafe(32)
     conn.execute(
         text(
@@ -56,7 +56,7 @@ def create_session(conn, user_id):
 
 
 def get_session_user(conn, token):
-    """Return the logged-in user for a session token, or None if it's invalid or expired."""
+    """トークンに対応するログイン中のユーザーを返す。無効か期限切れなら None"""
     if not token:
         return None
     return conn.execute(

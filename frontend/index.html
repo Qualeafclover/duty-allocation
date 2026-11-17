@@ -102,7 +102,7 @@
     <script>
         const HOME = "/home.html";
 
-        // Already logged in: skip the form
+        // ログイン済みならフォームを飛ばしてマイページへ
         fetch("/api/me").then((response) => {
             if (response.ok) location.replace(HOME);
         });
