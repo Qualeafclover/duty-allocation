@@ -3,12 +3,12 @@ CREATE TABLE users (
     login_id TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
     role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user')),
-    -- argon2 hash; NULL means the user can't log in yet
+    -- argon2 のハッシュ。NULL のユーザーはログインできない
     password_hash TEXT,
     task_points INTEGER NOT NULL DEFAULT 0
 );
 
--- Login sessions; the browser holds the token in a cookie, we only store its hash
+-- ログインセッション。トークンはブラウザーの Cookie に置き、DB にはそのハッシュだけを保存する
 CREATE TABLE sessions (
     token_hash TEXT PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -75,5 +75,5 @@ CREATE TABLE log (
     details TEXT
 );
 
--- Sample users are created by the backend on startup (app/seed.py),
--- because their passwords need to be hashed
+-- サンプルユーザーは、パスワードをハッシュ化する必要があるため、
+-- バックエンドの起動時に作成する（backend/app/seed.py）

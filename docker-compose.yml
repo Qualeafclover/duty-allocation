@@ -20,8 +20,10 @@ services:
       dockerfile: backend/Dockerfile
     environment:
       DATABASE_URL: postgresql+psycopg://duty:password@db:5432/duty
-      # Create the sample users (alice, bob, carol) on startup; development only
+      # 起動時にサンプルユーザー（alice、bob、carol）を作成する。開発用
       SEED_SAMPLE_USERS: "true"
+      # 起動時にターミナルへ表示する URL（下の ports のホスト側ポートと合わせる）
+      APP_URL: http://127.0.0.1:8000
       # Poll for file changes so --reload also works when the repo is on the
       # Windows drive (/mnt/c), where file change events don't reach Docker
       WATCHFILES_FORCE_POLLING: "true"

@@ -100,7 +100,7 @@
     <script>
         const destination = (me) => me.role === "admin" ? "/admin.html" : "/home.html";
 
-        // Already logged in: skip the form
+        // ログイン済みならフォームを飛ばして、管理者ページまたはマイページへ
         fetch("/api/me").then(async (response) => {
             if (response.ok) location.replace(destination(await response.json()));
         });

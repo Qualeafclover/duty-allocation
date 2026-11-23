@@ -152,7 +152,7 @@
         async function load() {
             const response = await fetch("/api/me");
             if (!response.ok) {
-                // Not logged in, or the session expired
+                // 未ログイン、またはセッションの期限切れ
                 location.replace("/");
                 return;
             }

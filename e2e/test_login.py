@@ -23,7 +23,7 @@ def test_login_shows_home_page(driver):
 def test_session_survives_reload(driver):
     log_in(driver, "alice", "alice-password")
     WebDriverWait(driver, 10).until(EC.url_contains("/home.html"))
-    driver.get(BASE_URL)  # login page sends logged-in users back home
+    driver.get(BASE_URL)  # ログイン済みならログインページからマイページへ戻される
     WebDriverWait(driver, 10).until(EC.url_contains("/home.html"))
 
 
@@ -40,7 +40,7 @@ def test_logout_returns_to_login(driver):
     wait = WebDriverWait(driver, 10)
     wait.until(EC.element_to_be_clickable((By.ID, "logout-button"))).click()
     wait.until(EC.presence_of_element_located((By.ID, "login-form")))
-    driver.get(f"{BASE_URL}/home.html")  # session is gone, so this bounces back
+    driver.get(f"{BASE_URL}/home.html")  # セッションが消えたので、ログインページへ戻される
     wait.until(EC.presence_of_element_located((By.ID, "login-form")))
 
 
