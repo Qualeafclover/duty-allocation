@@ -19,8 +19,14 @@ logger = logging.getLogger("uvicorn.error")
 def check_schema(conn):
     """古い init.sql で作られたデータベースなら、分かりやすいメッセージで止める"""
     has_sessions = conn.execute(text("SELECT to_regclass('sessions') IS NOT NULL")).scalar()
-    has_role = conn.execute(text("SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='role')")).scalar()
-    if not has_sessions or not has_role:
+    has_columns = conn.execute(
+        text(
+            "SELECT count(*) = 3 FROM information_schema.columns "
+            "WHERE (table_name = 'users' AND column_name IN ('role', 'is_active')) "
+            "   OR (table_name = 'task_type' AND column_name = 'is_active')"
+        )
+    ).scalar()
+    if not has_sessions or not has_columns:
         raise RuntimeError(
             "データベースのスキーマが古いです。`make reset` でデータを削除してから、"
             "もう一度 `make up` を実行してください（データベースのデータはすべて削除されます）"
@@ -46,6 +52,15 @@ async def lifespan(app):
 app = FastAPI(lifespan=lifespan)
 
 
+@app.middleware("http")
+async def no_cache(request, call_next):
+    """ブラウザーが古い HTML/CSS/JS を使い続けないよう、毎回サーバーに確認させる。
+    変更がなければ 304 が返るだけなので、遅くはならない"""
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
 @app.get("/api/health")
 def health():
     with engine.connect() as conn:
@@ -55,9 +70,16 @@ def health():
 
 @app.get("/api/users")
 def list_users(session: str | None = Cookie(default=None)):
-    require_user(session)
+    """管理者にはすべてのユーザーを、一般ユーザーには有効なユーザーだけを返す"""
+    user = require_user(session)
     with engine.connect() as conn:
-        rows = conn.execute(text("SELECT id, login_id, name, task_points FROM users ORDER BY id"))
+        rows = conn.execute(
+            text(
+                "SELECT id, login_id, name, role, task_points, is_active FROM users "
+                "WHERE is_active OR :is_admin ORDER BY id"
+            ),
+            {"is_admin": user.role == "admin"},
+        )
         return [dict(row._mapping) for row in rows]
 
 
@@ -91,7 +113,7 @@ def create_user(body: UserCreate, session: str | None = Cookie(default=None)):
     try:
         with engine.begin() as conn:
             row = conn.execute(
-                text("INSERT INTO users (login_id, name, password_hash) VALUES (:login_id, :name, :password_hash) RETURNING id, login_id, name, task_points"),
+                text("INSERT INTO users (login_id, name, password_hash) VALUES (:login_id, :name, :password_hash) RETURNING id, login_id, name, role, task_points, is_active"),
                 {"login_id": login_id, "name": name, "password_hash": auth.hash_password(body.password)},
             ).first()
     except IntegrityError:
@@ -99,35 +121,45 @@ def create_user(body: UserCreate, session: str | None = Cookie(default=None)):
     return dict(row._mapping)
 
 
-@app.delete("/api/users/{user_id}", status_code=204)
-def delete_user(user_id: int, session: str | None = Cookie(default=None)):
+class ActiveUpdate(BaseModel):
+    is_active: bool
+
+
+# ユーザーと任務は削除せず、有効・無効を切り替える。行を消さないので、
+# 割り当てなどの履歴から参照されていても ID がそのまま残る
+@app.patch("/api/users/{user_id}")
+def set_user_active(user_id: int, body: ActiveUpdate, session: str | None = Cookie(default=None)):
     admin = require_admin(session)
-    try:
-        with engine.begin() as conn:
-            target = conn.execute(text("SELECT role FROM users WHERE id=:id"), {"id": user_id}).first()
-            if target is None:
-                raise HTTPException(status_code=404, detail="ユーザーが見つかりません")
-            if user_id == admin.id:
-                raise HTTPException(status_code=400, detail="自分自身は削除できません")
-            if target.role == "admin":
-                count = conn.execute(text("SELECT count(*) FROM users WHERE role='admin'")).scalar_one()
-                if count <= 1:
-                    raise HTTPException(status_code=400, detail="最後の管理者は削除できません")
-            conn.execute(text("DELETE FROM users WHERE id=:id"), {"id": user_id})
-    except IntegrityError:
-        raise HTTPException(status_code=409, detail="割り当てなどの履歴があるため削除できません")
+    # 自分を無効にすると、ログインできる管理者がいなくなる場合がある
+    if user_id == admin.id:
+        raise HTTPException(status_code=400, detail="自分自身の状態は変更できません")
+    with engine.begin() as conn:
+        row = conn.execute(
+            text("UPDATE users SET is_active = :is_active WHERE id = :id RETURNING id, login_id, name, role, task_points, is_active"),
+            {"id": user_id, "is_active": body.is_active},
+        ).first()
+        if row is None:
+            raise HTTPException(status_code=404, detail="ユーザーが見つかりません")
+        if not body.is_active:
+            # ログイン中なら、その場でログアウトさせる
+            auth.delete_user_sessions(conn, user_id)
+    return dict(row._mapping)
 
 
 class TaskCreate(BaseModel):
     name: str = Field(min_length=1, max_length=150)
-    points: int = Field(ge=0, le=100000)
+    points: int = Field(ge=1, le=100000)  # 任務は 1 ポイント以上
 
 
 @app.get("/api/tasks")
 def list_tasks(session: str | None = Cookie(default=None)):
-    require_user(session)
+    """管理者にはすべての任務を、一般ユーザーには有効な任務だけを返す"""
+    user = require_user(session)
     with engine.connect() as conn:
-        rows = conn.execute(text("SELECT id, name, points FROM task_type ORDER BY id"))
+        rows = conn.execute(
+            text("SELECT id, name, points, is_active FROM task_type WHERE is_active OR :is_admin ORDER BY id"),
+            {"is_admin": user.role == "admin"},
+        )
         return [dict(row._mapping) for row in rows]
 
 
@@ -138,20 +170,21 @@ def create_task(body: TaskCreate, session: str | None = Cookie(default=None)):
     if not name:
         raise HTTPException(status_code=422, detail="任務名を入力してください")
     with engine.begin() as conn:
-        row = conn.execute(text("INSERT INTO task_type (name, points) VALUES (:name, :points) RETURNING id, name, points"), {"name": name, "points": body.points}).first()
+        row = conn.execute(text("INSERT INTO task_type (name, points) VALUES (:name, :points) RETURNING id, name, points, is_active"), {"name": name, "points": body.points}).first()
     return dict(row._mapping)
 
 
-@app.delete("/api/tasks/{task_id}", status_code=204)
-def delete_task(task_id: int, session: str | None = Cookie(default=None)):
+@app.patch("/api/tasks/{task_id}")
+def set_task_active(task_id: int, body: ActiveUpdate, session: str | None = Cookie(default=None)):
     require_admin(session)
-    try:
-        with engine.begin() as conn:
-            if conn.execute(text("SELECT 1 FROM task_type WHERE id=:id"), {"id": task_id}).first() is None:
-                raise HTTPException(status_code=404, detail="任務が見つかりません")
-            conn.execute(text("DELETE FROM task_type WHERE id=:id"), {"id": task_id})
-    except IntegrityError:
-        raise HTTPException(status_code=409, detail="割り当てに使われている任務は削除できません")
+    with engine.begin() as conn:
+        row = conn.execute(
+            text("UPDATE task_type SET is_active = :is_active WHERE id = :id RETURNING id, name, points, is_active"),
+            {"id": task_id, "is_active": body.is_active},
+        ).first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="任務が見つかりません")
+    return dict(row._mapping)
 
 
 class LoginRequest(BaseModel):
@@ -165,6 +198,8 @@ def login(body: LoginRequest, response: Response):
         user = auth.authenticate(conn, body.login_id, body.password)
         if user is None:
             raise HTTPException(status_code=401, detail="ユーザーIDまたはパスワードが違います")
+        if not user.is_active:
+            raise HTTPException(status_code=403, detail="このアカウントは無効になっています。管理者に連絡してください")
         token = auth.create_session(conn, user.id)
 
     response.set_cookie(

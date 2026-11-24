@@ -3,151 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>マイページ</title>
-
-    <style>
-        body {
-            font-family: sans-serif;
-            background-color: #f1f5f9;
-            margin: 0;
-            color: #0f172a;
-        }
-
-        header {
-            background-color: #2563eb;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 20px;
-        }
-
-        header h1 {
-            font-size: 18px;
-            margin: 0;
-        }
-
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-        }
-
-        .status-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #4ade80;
-            margin-right: 6px;
-        }
-
-        header button {
-            background: white;
-            color: #2563eb;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        header button:hover {
-            background-color: #dbeafe;
-        }
-
-        main {
-            max-width: 640px;
-            margin: 30px auto;
-            padding: 0 16px;
-        }
-
-        .card {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-
-        .card h2 {
-            margin-top: 0;
-            font-size: 20px;
-        }
-
-        dl {
-            display: grid;
-            grid-template-columns: max-content 1fr;
-            gap: 8px 20px;
-            margin: 0;
-        }
-
-        dt {
-            color: #64748b;
-        }
-
-        dd {
-            margin: 0;
-        }
-
-        .points {
-            font-size: 32px;
-            font-weight: bold;
-            color: #2563eb;
-        }
-
-        ul {
-            padding-left: 20px;
-            margin: 0;
-        }
-
-        li.me {
-            font-weight: bold;
-        }
-
-        [hidden] {
-            display: none !important;
-        }
-    </style>
+    <title>マイページ | 納得のできる抽選システム</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
 
-    <header>
-        <h1>納得のできる抽選システム</h1>
-        <div class="user-badge" id="user-badge" hidden>
-            <span><span class="status-dot"></span><span id="badge-name"></span> でログイン中</span>
-            <button type="button" id="logout-button">ログアウト</button>
-        </div>
-    </header>
+    <!-- ログインを確認できるまで表示しない -->
+    <div class="app-shell" id="content" hidden>
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div><strong>マイページ</strong><small>USER PAGE</small></div>
+            </div>
 
-    <main id="content" hidden>
-        <div class="card">
-            <h2 id="welcome"></h2>
-            <dl>
-                <dt>ユーザーID</dt>
-                <dd id="login-id"></dd>
-                <dt>ログイン日時</dt>
-                <dd id="login-dt"></dd>
-                <dt>セッション有効期限</dt>
-                <dd id="expires-dt"></dd>
-            </dl>
-        </div>
+            <div class="nav-label">メニュー</div>
+            <a class="nav-item active" href="/home.html"><span class="nav-icon">⌂</span>マイページ</a>
 
-        <div class="card">
-            <h2>あなたのポイント</h2>
-            <div class="points" id="points"></div>
-        </div>
+            <div class="sidebar-bottom">
+                <div class="profile-card">
+                    <div class="avatar" id="avatar"></div>
+                    <div><strong id="badge-name"></strong><small id="badge-login-id"></small></div>
+                    <span class="status-dot"></span>
+                </div>
+            </div>
+        </aside>
 
-        <div class="card">
-            <h2>メンバー</h2>
-            <ul id="users"></ul>
-        </div>
-    </main>
+        <main class="main">
+            <header class="topbar">
+                <button class="mobile-menu" id="mobile-menu" type="button" aria-label="メニュー">☰</button>
+                <div class="breadcrumb">ユーザー <span>/</span> <strong>マイページ</strong></div>
+                <div class="topbar-right">
+                    <span class="user-pill"><i></i> ログイン中</span>
+                    <button type="button" class="secondary-btn" id="logout-button">ログアウト</button>
+                </div>
+            </header>
+
+            <section class="page active">
+                <div class="page-heading">
+                    <div>
+                        <p class="eyebrow">MY PAGE</p>
+                        <h1 id="welcome"></h1>
+                        <p class="subheading">あなたのポイントとメンバーの状況を確認できます。</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <article class="stat-card">
+                        <div class="stat-top"><span>あなたのポイント</span><span class="stat-icon blue">★</span></div>
+                        <strong id="points"></strong>
+                        <small>現在のポイント</small>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-top"><span>ユーザーID</span><span class="stat-icon purple">♙</span></div>
+                        <strong class="stat-text" id="login-id"></strong>
+                        <small>ログインに使う ID</small>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-top"><span>セッション有効期限</span><span class="stat-icon green">◷</span></div>
+                        <strong class="stat-text" id="expires-dt"></strong>
+                        <small>ログイン日時: <span id="login-dt"></span></small>
+                    </article>
+                </div>
+
+                <div class="content-card">
+                    <div class="table-toolbar">
+                        <div>
+                            <h2>メンバー</h2>
+                            <p><span id="member-count">0</span> 人のメンバー</p>
+                        </div>
+                    </div>
+                    <ul class="member-list" id="users"></ul>
+                </div>
+            </section>
+        </main>
+    </div>
 
     <script>
         const formatDate = (value) => new Date(value).toLocaleString("ja-JP");
+
+        function memberRow(user, me) {
+            const item = document.createElement("li");
+            if (user.id === me.id) item.className = "me";
+
+            const avatar = document.createElement("span");
+            avatar.className = "user-avatar";
+            avatar.textContent = user.name.slice(0, 1);
+
+            const name = document.createElement("span");
+            name.className = "member-name";
+            name.textContent = user.name;
+
+            const points = document.createElement("span");
+            points.className = "points";
+            points.textContent = `${user.task_points} pt`;
+
+            item.append(avatar, name);
+            if (user.id === me.id) {
+                const tag = document.createElement("span");
+                tag.className = "you-tag";
+                tag.textContent = "あなた";
+                item.append(tag);
+            }
+            item.append(points);
+            return item;
+        }
 
         async function load() {
             const response = await fetch("/api/me");
@@ -162,7 +121,9 @@
                 return;
             }
 
+            document.getElementById("avatar").textContent = me.name.slice(0, 1);
             document.getElementById("badge-name").textContent = me.name;
+            document.getElementById("badge-login-id").textContent = me.login_id;
             document.getElementById("welcome").textContent = `ようこそ、${me.name} さん`;
             document.getElementById("login-id").textContent = me.login_id;
             document.getElementById("login-dt").textContent = formatDate(me.login_dt);
@@ -170,21 +131,20 @@
             document.getElementById("points").textContent = `${me.task_points} pt`;
 
             const users = await fetch("/api/users").then((r) => r.json());
-            const list = document.getElementById("users");
-            for (const user of users) {
-                const item = document.createElement("li");
-                item.textContent = `${user.name}: ${user.task_points} ポイント`;
-                if (user.id === me.id) item.className = "me";
-                list.append(item);
-            }
+            document.getElementById("member-count").textContent = users.length;
+            document.getElementById("users").replaceChildren(...users.map((user) => memberRow(user, me)));
 
-            document.getElementById("user-badge").hidden = false;
             document.getElementById("content").hidden = false;
         }
 
         document.getElementById("logout-button").addEventListener("click", async () => {
             await fetch("/api/logout", { method: "POST" });
             location.replace("/");
+        });
+
+        // スマートフォンでサイドバーを開閉する
+        document.getElementById("mobile-menu").addEventListener("click", () => {
+            document.getElementById("sidebar").classList.toggle("open");
         });
 
         load();
