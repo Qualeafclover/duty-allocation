@@ -5,6 +5,9 @@ services:
       POSTGRES_USER: duty
       POSTGRES_PASSWORD: password
       POSTGRES_DB: duty
+    # VS Code などのツールや E2E テストから接続できるように公開する（このパソコンからのみ接続可能）
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro

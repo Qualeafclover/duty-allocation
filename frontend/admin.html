@@ -38,17 +38,16 @@
           <div><p class="eyebrow">OVERVIEW</p><h1>ダッシュボード</h1><p class="subheading">管理者向けの管理メニューです。</p></div>
           <div class="date-chip" id="today"></div>
         </div>
-        <div class="stats-grid">
+        <div class="stats-grid two-columns">
           <article class="stat-card"><div class="stat-top"><span>有効なユーザー数</span><span class="stat-icon blue">♙</span></div><strong id="userCount">0</strong><small>ログインできるユーザー</small></article>
           <article class="stat-card"><div class="stat-top"><span>有効な任務数</span><span class="stat-icon purple">☷</span></div><strong id="taskCount">0</strong><small>割り当てに使える任務</small></article>
-          <article class="stat-card"><div class="stat-top"><span>管理機能</span><span class="stat-icon green">⚙</span></div><strong>2</strong><small>ユーザー・任務の管理</small></article>
         </div>
         <div class="section-title"><div><h2>管理メニュー</h2><p>管理したい項目を選択してください。</p></div></div>
         <div class="menu-grid">
           <button class="menu-card" data-go="users"><div class="menu-card-icon blue">♙</div><div><h3>ユーザー管理</h3><p>ユーザーの登録・一覧確認・有効/無効の切り替えを行います。</p><span class="card-link">ユーザー管理を開く <b>→</b></span></div></button>
           <button class="menu-card" data-go="tasks"><div class="menu-card-icon purple">☷</div><div><h3>任務種類の管理</h3><p>任務の一覧確認・新規追加・有効/無効の切り替えを行います。</p><span class="card-link">任務管理を開く <b>→</b></span></div></button>
         </div>
-        <div class="notice"><span>ⓘ</span><div><strong>管理者向けの操作</strong><p>ユーザーと任務は削除せず、無効にします。無効のユーザーはログインできず、無効の任務は一般ユーザーに表示されません。</p></div></div>
+        <div class="notice"><span>ⓘ</span><div><strong>管理者向けの操作</strong><p>ユーザーと任務は削除せず、無効にします。無効のユーザーはログインできず、無効の任務は割り当てに使われません。</p></div></div>
       </section>
 
       <section class="page" id="page-users">

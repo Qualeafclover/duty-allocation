@@ -84,7 +84,7 @@ ldd downloads/chromedriver-linux64/chromedriver downloads/chrome-linux64/chrome 
 | `make up` | アプリをビルドして起動し、ログを表示します |
 | `make down` | コンテナを停止して削除します（データベースのデータは残ります） |
 | `make test` | Docker 内でユニットテストを実行します |
-| `make e2e` | ローカルで Selenium テストを実行します（別のターミナルで `make up` が必要です）。`make e2e V=1` で Chrome のウィンドウを表示し、テスト名を一覧表示します |
+| `make e2e` | ローカルで Selenium テストを実行します（別のターミナルで `make up` が必要です）。画面の操作の結果は `127.0.0.1:5432` のデータベースを直接読んで確かめます。`make e2e V=1` で Chrome のウィンドウを表示し、テスト名を一覧表示します |
 | `make reset` | **データベースのデータをすべて削除します**。次の `make up` で `db/init.sql` から作り直されます（アプリは起動しません） |
 
 `make test` は、データベースが起動していなければ起動します。アプリを起動していない場合は、終わったあとに `make down` で停止してください。

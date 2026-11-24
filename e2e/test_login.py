@@ -49,3 +49,10 @@ def test_home_page_requires_login(driver):
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "login-form"))
     )
+
+
+def test_member_list_hides_admins(driver):
+    log_in(driver, "alice", "alice-password")
+    wait = WebDriverWait(driver, 10)
+    wait.until(EC.text_to_be_present_in_element((By.ID, "users"), "Bob"))
+    assert "管理者" not in driver.find_element(By.ID, "users").text

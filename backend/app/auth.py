@@ -44,6 +44,8 @@ def authenticate(conn, login_id, password):
 
 def create_session(conn, user_id):
     """セッションを保存し、ブラウザーに渡すトークンを返す"""
+    # 期限切れのセッションは使われないまま残るので、ログインのたびに片付ける
+    conn.execute(text("DELETE FROM sessions WHERE expires_dt <= now()"))
     token = secrets.token_urlsafe(32)
     conn.execute(
         text(

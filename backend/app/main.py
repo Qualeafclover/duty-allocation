@@ -70,13 +70,13 @@ def health():
 
 @app.get("/api/users")
 def list_users(session: str | None = Cookie(default=None)):
-    """管理者にはすべてのユーザーを、一般ユーザーには有効なユーザーだけを返す"""
+    """管理者にはすべてのユーザーを、一般ユーザーには有効な一般ユーザーだけを返す（管理者は含めない）"""
     user = require_user(session)
     with engine.connect() as conn:
         rows = conn.execute(
             text(
                 "SELECT id, login_id, name, role, task_points, is_active FROM users "
-                "WHERE is_active OR :is_admin ORDER BY id"
+                "WHERE :is_admin OR (is_active AND role = 'user') ORDER BY id"
             ),
             {"is_admin": user.role == "admin"},
         )
@@ -153,13 +153,10 @@ class TaskCreate(BaseModel):
 
 @app.get("/api/tasks")
 def list_tasks(session: str | None = Cookie(default=None)):
-    """管理者にはすべての任務を、一般ユーザーには有効な任務だけを返す"""
-    user = require_user(session)
+    """すべての任務を返す。今のところ一般ユーザーは任務を見る必要がないので、管理者だけ"""
+    require_admin(session)
     with engine.connect() as conn:
-        rows = conn.execute(
-            text("SELECT id, name, points, is_active FROM task_type WHERE is_active OR :is_admin ORDER BY id"),
-            {"is_admin": user.role == "admin"},
-        )
+        rows = conn.execute(text("SELECT id, name, points, is_active FROM task_type ORDER BY id"))
         return [dict(row._mapping) for row in rows]
 
 
