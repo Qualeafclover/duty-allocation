@@ -34,7 +34,7 @@ def _hash_token(token):
 def authenticate(conn, login_id, password):
     """ユーザーIDとパスワードが合えばユーザーの行を、合わなければ None を返す"""
     user = conn.execute(
-        text("SELECT id, password_hash FROM users WHERE login_id = :login_id"),
+        text("SELECT id, password_hash, is_active FROM users WHERE login_id = :login_id"),
         {"login_id": login_id},
     ).first()
     if not verify_password(user.password_hash if user else None, password):
@@ -44,6 +44,8 @@ def authenticate(conn, login_id, password):
 
 def create_session(conn, user_id):
     """セッションを保存し、ブラウザーに渡すトークンを返す"""
+    # 期限切れのセッションは使われないまま残るので、ログインのたびに片付ける
+    conn.execute(text("DELETE FROM sessions WHERE expires_dt <= now()"))
     token = secrets.token_urlsafe(32)
     conn.execute(
         text(
@@ -56,15 +58,16 @@ def create_session(conn, user_id):
 
 
 def get_session_user(conn, token):
-    """トークンに対応するログイン中のユーザーを返す。無効か期限切れなら None"""
+    """トークンに対応するログイン中のユーザーを返す。トークンが無効・期限切れ、
+    またはユーザーが無効にされていれば None"""
     if not token:
         return None
     return conn.execute(
         text(
-            "SELECT u.id, u.login_id, u.name, u.task_points, "
+            "SELECT u.id, u.login_id, u.name, u.role, u.task_points, "
             "       s.created_dt AS login_dt, s.expires_dt "
             "FROM sessions s JOIN users u ON u.id = s.user_id "
-            "WHERE s.token_hash = :token_hash AND s.expires_dt > now()"
+            "WHERE s.token_hash = :token_hash AND s.expires_dt > now() AND u.is_active"
         ),
         {"token_hash": _hash_token(token)},
     ).first()
@@ -76,3 +79,8 @@ def delete_session(conn, token):
             text("DELETE FROM sessions WHERE token_hash = :token_hash"),
             {"token_hash": _hash_token(token)},
         )
+
+
+def delete_user_sessions(conn, user_id):
+    """ユーザーのセッションをすべて削除し、ログアウトさせる"""
+    conn.execute(text("DELETE FROM sessions WHERE user_id = :user_id"), {"user_id": user_id})

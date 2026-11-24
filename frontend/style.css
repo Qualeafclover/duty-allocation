@@ -1,0 +1,1096 @@
+/*
+ * 共通スタイル
+ * ログイン画面（index.html）、マイページ（home.html）、管理者画面（admin.html）で使う
+ *
+ *  1. フォントと色
+ *  2. 基本
+ *  3. レイアウト（サイドバー・上部バー・ページ）
+ *  4. 部品（ボタン・カード・表・フォーム・モーダル など）
+ *  5. ログイン画面
+ *  6. マイページ
+ *  7. スマートフォン・タブレット
+ */
+
+
+/* ===== 1. フォントと色 ===== */
+
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap");
+
+:root {
+    --font: "Noto Sans JP", sans-serif;
+
+    --ink: #172033;          /* 本文の文字色 */
+    --muted: #778197;        /* 補足テキスト */
+    --faint: #9aa3b3;        /* さらに薄いテキスト */
+    --line: #e8ecf2;         /* 枠線 */
+    --bg: #f6f8fb;           /* ページの背景 */
+    --surface: #ffffff;      /* カードの背景 */
+
+    --blue: #3269d8;
+    --blue-dark: #2456bd;
+    --blue-soft: #edf3ff;
+    --purple: #7558c9;
+    --purple-soft: #f2efff;
+    --green: #22966b;
+    --green-soft: #eaf8f2;
+    --red: #c45b5b;
+
+    --radius: 13px;
+    --shadow: 0 10px 30px rgba(28, 42, 69, 0.06);
+}
+
+
+/* ===== 2. 基本 ===== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 14px;
+}
+
+/* hidden 属性を display の指定より優先する */
+[hidden],
+.hidden {
+    display: none !important;
+}
+
+.muted {
+    color: var(--faint);
+}
+
+.align-right {
+    text-align: right;
+}
+
+
+/* ===== 3. レイアウト ===== */
+
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* --- サイドバー --- */
+
+/* スクロールしてもサイドバーは画面に残す */
+.sidebar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 250px;
+    height: 100vh;
+    padding: 26px 17px 18px;
+    background: var(--surface);
+    border-right: 1px solid var(--line);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 0 10px 35px;
+}
+
+.brand strong {
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+}
+
+.brand small {
+    display: block;
+    margin-top: 3px;
+    color: var(--faint);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+}
+
+.brand-mark {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #477de5, #2859c5);
+    box-shadow: 0 5px 12px rgba(50, 105, 216, 0.2);
+    color: white;
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.nav-label {
+    padding: 0 12px 10px;
+    color: #a1a9b7;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin: 2px 0;
+    padding: 12px 13px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #69758b;
+    font: 500 13px var(--font);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.nav-item:hover {
+    background: #f4f6fb;
+    color: var(--blue);
+}
+
+.nav-item.active {
+    background: var(--blue-soft);
+    color: var(--blue);
+    font-weight: 700;
+}
+
+.nav-icon {
+    width: 19px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+}
+
+/* ログイン中のアカウント。admin-card は管理者画面、profile-card はマイページで使う */
+.admin-card,
+.profile-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 9px;
+    border-top: 1px solid var(--line);
+}
+
+.admin-card strong,
+.profile-card strong {
+    display: block;
+    font-size: 12px;
+}
+
+.admin-card small,
+.profile-card small {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #eaf0ff;
+    color: var(--blue);
+    font-weight: 700;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    margin-left: auto;
+    border-radius: 50%;
+    background: #29b77d;
+}
+
+.version {
+    padding-left: 9px;
+    color: #aab1bd;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+}
+
+/* --- 上部バー --- */
+
+.main {
+    flex: 1;
+    min-width: 0;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 66px;
+    padding: 0 38px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+}
+
+.breadcrumb {
+    color: #8791a4;
+    font-size: 12px;
+}
+
+.breadcrumb span {
+    padding: 0 10px;
+    color: #c2c8d2;
+}
+
+.breadcrumb strong {
+    color: #303b50;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 「管理者モード」「ログイン中」の表示。admin-pill は管理者画面、user-pill はマイページで使う */
+.admin-pill,
+.user-pill {
+    padding: 7px 11px;
+    border-radius: 20px;
+    background: #f4f6fa;
+    color: #52617b;
+    font-size: 11px;
+}
+
+.admin-pill i,
+.user-pill i {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 5px;
+    border-radius: 50%;
+    background: #27ad78;
+}
+
+/* スマートフォンでサイドバーを開くボタン（広い画面では隠す） */
+.mobile-menu {
+    display: none;
+    border: 0;
+    background: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* --- ページ本体 --- */
+
+.page {
+    display: none;
+    max-width: 1400px;
+    margin: auto;
+    padding: 36px 40px 55px;
+}
+
+.page.active {
+    display: block;
+}
+
+.page-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.page h1 {
+    margin: 0;
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.eyebrow {
+    margin: 0 0 8px;
+    color: #8c9bb4;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.17em;
+}
+
+.subheading {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.date-chip {
+    padding: 9px 13px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: #69758b;
+    font-size: 11px;
+}
+
+.date-chip:empty {
+    display: none;
+}
+
+
+/* ===== 4. 部品 ===== */
+
+/* --- ボタン --- */
+
+.primary-btn,
+.secondary-btn {
+    padding: 11px 16px;
+    border: 0;
+    border-radius: 8px;
+    font: 600 12px var(--font);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.primary-btn {
+    background: var(--blue);
+    box-shadow: 0 4px 10px rgba(50, 105, 216, 0.17);
+    color: white;
+}
+
+.primary-btn:hover {
+    background: var(--blue-dark);
+    transform: translateY(-1px);
+}
+
+.primary-btn:disabled {
+    background: #9fb3e0;
+    box-shadow: none;
+    transform: none;
+    cursor: wait;
+}
+
+.secondary-btn {
+    background: #f2f4f8;
+    color: #657087;
+}
+
+.secondary-btn:hover {
+    background: #e8ecf3;
+}
+
+/* 一覧表の「無効にする」「有効にする」ボタン */
+.deactivate-btn,
+.activate-btn {
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: white;
+    font: 500 10px var(--font);
+    cursor: pointer;
+}
+
+.deactivate-btn {
+    border: 1px solid #f1dede;
+    color: var(--red);
+}
+
+.deactivate-btn:hover {
+    background: #fff5f5;
+}
+
+.activate-btn {
+    border: 1px solid #cfe9dd;
+    color: var(--green);
+}
+
+.activate-btn:hover {
+    background: var(--green-soft);
+}
+
+.icon-btn {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 8px;
+    background: #f2f4f8;
+    color: #68748a;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* --- アイコンの色 --- */
+
+.blue {
+    background: var(--blue-soft);
+    color: var(--blue);
+}
+
+.purple {
+    background: var(--purple-soft);
+    color: var(--purple);
+}
+
+.green {
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+/* --- 数値カード --- */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 17px;
+    margin-bottom: 35px;
+}
+
+/* カードが 2 枚のとき（管理者ダッシュボード） */
+.stats-grid.two-columns {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.stat-card,
+.content-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.stat-card {
+    padding: 20px 22px;
+}
+
+.stat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #69758b;
+    font-size: 12px;
+}
+
+.stat-icon,
+.menu-card-icon {
+    display: grid;
+    place-items: center;
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+.stat-card > strong {
+    display: block;
+    margin: 12px 0 2px;
+    font-size: 30px;
+    letter-spacing: -0.04em;
+}
+
+/* 数字ではなく文字や日時を表示するカード */
+.stat-card > strong.stat-text {
+    margin: 17px 0 7px;
+    font-size: 15px;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+}
+
+.stat-card > small {
+    color: var(--faint);
+    font-size: 10px;
+}
+
+/* --- 見出し付きのメニューカード --- */
+
+.section-title {
+    margin-bottom: 14px;
+}
+
+.section-title h2,
+.table-toolbar h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.section-title p,
+.table-toolbar p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 17px;
+}
+
+.menu-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    color: inherit;
+    font-family: var(--font);
+    text-align: left;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.menu-card:hover {
+    border-color: #cbd8f4;
+    transform: translateY(-2px);
+}
+
+.menu-card-icon {
+    flex-shrink: 0;
+    width: 43px;
+    height: 43px;
+    font-size: 21px;
+}
+
+.menu-card h3 {
+    margin: 1px 0 7px;
+    font-size: 14px;
+}
+
+.menu-card p {
+    margin: 0 0 15px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.8;
+}
+
+.card-link {
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.card-link b {
+    margin-left: 5px;
+    font-size: 15px;
+}
+
+/* --- お知らせ --- */
+
+.notice {
+    display: flex;
+    gap: 11px;
+    margin-top: 23px;
+    padding: 15px 17px;
+    border: 1px solid #e0eaff;
+    border-radius: 10px;
+    background: #f0f5ff;
+    color: #58709d;
+}
+
+.notice > span {
+    font-size: 17px;
+}
+
+.notice strong {
+    font-size: 11px;
+}
+
+.notice p {
+    margin: 4px 0 0;
+    color: #7183a6;
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+/* --- 一覧表 --- */
+
+.content-card {
+    overflow: hidden;
+}
+
+.table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 20px 22px;
+    border-bottom: 1px solid var(--line);
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* 「無効も表示」のチェックボックス */
+.toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 11px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 230px;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    color: #9ba5b6;
+}
+
+.search-wrap input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    color: var(--ink);
+    font: 11px var(--font);
+}
+
+.table-scroll {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    min-width: 560px;
+    border-collapse: collapse;
+}
+
+th {
+    padding: 13px 22px;
+    background: #fbfcfe;
+    color: #929bad;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+}
+
+td {
+    padding: 15px 22px;
+    border-top: 1px solid #f0f2f6;
+    color: #4e5a70;
+    font-size: 11px;
+}
+
+tbody tr:hover {
+    background: #fcfdff;
+}
+
+/* 無効の行は薄く表示する */
+tr.inactive td {
+    color: var(--faint);
+}
+
+tr.inactive .user-avatar {
+    background: #f2f4f8;
+    color: var(--faint);
+}
+
+/* 「有効」「無効」の表示 */
+.status-badge {
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+.status-badge.inactive {
+    background: #f2f4f8;
+    color: var(--faint);
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 31px;
+    height: 31px;
+    border-radius: 50%;
+    background: #edf2ff;
+    color: #4c70c1;
+    font-weight: 700;
+}
+
+.points {
+    color: #526db0;
+    font-weight: 700;
+}
+
+.empty-state {
+    padding: 48px 15px;
+    color: #929bad;
+    text-align: center;
+}
+
+.empty-state > div {
+    margin-bottom: 10px;
+    color: #bdc7d8;
+    font-size: 28px;
+}
+
+.empty-state strong {
+    display: block;
+    color: #59657b;
+    font-size: 12px;
+}
+
+.empty-state p {
+    font-size: 10px;
+}
+
+/* --- 入力欄 --- */
+
+.field {
+    margin-bottom: 16px;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 7px;
+    color: #4d5a70;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.field input {
+    width: 100%;
+    height: 41px;
+    padding: 0 11px;
+    border: 1px solid #dfe4ec;
+    border-radius: 7px;
+    outline: none;
+    font: 12px var(--font);
+}
+
+.field input:focus {
+    border-color: #7d9ce3;
+    box-shadow: 0 0 0 3px rgba(50, 105, 216, 0.08);
+}
+
+.field small {
+    display: block;
+    margin-top: 5px;
+    color: var(--faint);
+    font-size: 9px;
+}
+
+.form-error {
+    min-height: 18px;
+    margin: 0 0 12px;
+    color: #c8414b;
+    font-size: 11px;
+}
+
+/* --- モーダル（ポップアップの入力画面） --- */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    /* 画面が低くてモーダルが収まらないときは、スクロールで下のボタンまで届くようにする */
+    overflow-y: auto;
+    padding: 20px;
+    background: rgba(19, 29, 48, 0.38);
+}
+
+.modal {
+    /* 収まるときは中央に、収まらないときは上から表示する */
+    margin: auto;
+    width: min(100%, 440px);
+    padding: 25px;
+    border-radius: 15px;
+    background: var(--surface);
+    box-shadow: 0 20px 70px rgba(23, 32, 51, 0.2);
+    animation: pop 0.18s ease-out;
+}
+
+@keyframes pop {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 19px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 25px;
+}
+
+/* --- 画面下に一時的に出るメッセージ --- */
+
+.toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    z-index: 20;
+    padding: 11px 18px;
+    border-radius: 8px;
+    background: #202b40;
+    box-shadow: 0 8px 24px rgba(23, 32, 51, 0.19);
+    color: white;
+    font-size: 11px;
+    transform: translateX(-50%);
+}
+
+.toast.error {
+    background: #a53540;
+}
+
+
+/* ===== 5. ログイン画面 ===== */
+
+.auth-page {
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.auth-card {
+    width: min(100%, 380px);
+    padding: 34px 30px 28px;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.auth-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    text-align: center;
+}
+
+.auth-brand .brand-mark {
+    width: 46px;
+    height: 46px;
+    font-size: 21px;
+}
+
+.auth-brand h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.auth-brand p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+/* 横幅いっぱいのボタン */
+.block-btn {
+    width: 100%;
+    padding: 13px 16px;
+    font-size: 13px;
+}
+
+
+/* ===== 6. マイページ ===== */
+
+.member-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.member-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 22px;
+    border-top: 1px solid #f0f2f6;
+    color: #4e5a70;
+    font-size: 12px;
+}
+
+.member-list li:first-child {
+    border-top: 0;
+}
+
+.member-list .points {
+    margin-left: auto;
+}
+
+/* 自分の行 */
+.member-list li.me {
+    background: #f7f9ff;
+}
+
+.member-list li.me .member-name {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.you-tag {
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: var(--blue-soft);
+    color: var(--blue);
+    font-size: 9px;
+    font-weight: 700;
+}
+
+
+/* ===== 7. スマートフォン・タブレット ===== */
+
+@media (max-width: 850px) {
+    .sidebar {
+        width: 215px;
+    }
+
+    .topbar {
+        padding: 0 25px;
+    }
+
+    .page {
+        padding: 30px 25px;
+    }
+}
+
+@media (max-width: 650px) {
+    /* サイドバーは画面外に隠し、メニューボタンで開く */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: -260px;
+        z-index: 5;
+        box-shadow: 10px 0 30px rgba(23, 32, 51, 0.08);
+        transition: 0.2s;
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+
+    .mobile-menu {
+        display: block;
+    }
+
+    .topbar {
+        justify-content: flex-start;
+        gap: 13px;
+        height: 58px;
+        padding: 0 17px;
+    }
+
+    .topbar-right {
+        margin-left: auto;
+    }
+
+    .admin-pill,
+    .user-pill {
+        padding: 6px 8px;
+        font-size: 9px;
+    }
+
+    .page {
+        padding: 25px 16px 40px;
+    }
+
+    .page h1 {
+        font-size: 23px;
+    }
+
+    .page-heading {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 23px;
+    }
+
+    .page-heading .primary-btn {
+        align-self: stretch;
+    }
+
+    .date-chip {
+        display: none;
+    }
+
+    .stats-grid,
+    .stats-grid.two-columns {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 15px 18px;
+    }
+
+    .stat-card > strong {
+        margin: 7px 0 0;
+        font-size: 25px;
+    }
+
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .table-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .toolbar-right {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .search-wrap {
+        width: 100%;
+    }
+}

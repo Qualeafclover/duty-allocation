@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理者画面 | シフト・任務管理</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div><strong>管理コンソール</strong><small>ADMIN PANEL</small></div>
+      </div>
+      <div class="nav-label">メニュー</div>
+      <button class="nav-item active" data-page="dashboard"><span class="nav-icon">▦</span>ダッシュボード</button>
+      <button class="nav-item" data-page="users"><span class="nav-icon">♙</span>ユーザー管理</button>
+      <button class="nav-item" data-page="tasks"><span class="nav-icon">☷</span>任務種類の管理</button>
+      <div class="sidebar-bottom">
+        <div class="admin-card">
+          <div class="avatar">管</div>
+          <div><strong>管理者</strong><small>Administrator</small></div>
+          <span class="status-dot"></span>
+        </div>
+        <small class="version">ADMIN CONSOLE · DEMO</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" aria-label="メニュー">☰</button>
+        <div class="breadcrumb">管理者 <span>/</span> <strong id="breadcrumbCurrent">ダッシュボード</strong></div>
+        <div class="topbar-right"><span class="admin-pill"><i></i> 管理者モード</span> <button class="secondary-btn" id="logoutButton" type="button">ログアウト</button></div>
+      </header>
+
+      <section class="page active" id="page-dashboard">
+        <div class="page-heading">
+          <div><p class="eyebrow">OVERVIEW</p><h1>ダッシュボード</h1><p class="subheading">管理者向けの管理メニューです。</p></div>
+          <div class="date-chip" id="today"></div>
+        </div>
+        <div class="stats-grid two-columns">
+          <article class="stat-card"><div class="stat-top"><span>有効なユーザー数</span><span class="stat-icon blue">♙</span></div><strong id="userCount">0</strong><small>ログインできるユーザー</small></article>
+          <article class="stat-card"><div class="stat-top"><span>有効な任務数</span><span class="stat-icon purple">☷</span></div><strong id="taskCount">0</strong><small>割り当てに使える任務</small></article>
+        </div>
+        <div class="section-title"><div><h2>管理メニュー</h2><p>管理したい項目を選択してください。</p></div></div>
+        <div class="menu-grid">
+          <button class="menu-card" data-go="users"><div class="menu-card-icon blue">♙</div><div><h3>ユーザー管理</h3><p>ユーザーの登録・一覧確認・有効/無効の切り替えを行います。</p><span class="card-link">ユーザー管理を開く <b>→</b></span></div></button>
+          <button class="menu-card" data-go="tasks"><div class="menu-card-icon purple">☷</div><div><h3>任務種類の管理</h3><p>任務の一覧確認・新規追加・有効/無効の切り替えを行います。</p><span class="card-link">任務管理を開く <b>→</b></span></div></button>
+        </div>
+        <div class="notice"><span>ⓘ</span><div><strong>管理者向けの操作</strong><p>ユーザーと任務は削除せず、無効にします。無効のユーザーはログインできず、無効の任務は割り当てに使われません。</p></div></div>
+      </section>
+
+      <section class="page" id="page-users">
+        <div class="page-heading">
+          <div><p class="eyebrow">USER MANAGEMENT</p><h1>ユーザー管理</h1><p class="subheading">登録ユーザーの確認や新規登録、有効/無効の切り替えを行います。</p></div>
+          <button class="primary-btn" id="addUserBtn">＋ 新規ユーザー</button>
+        </div>
+        <div class="content-card">
+          <div class="table-toolbar"><div><h2>ユーザー一覧</h2><p><span id="userTableCount">0</span> 件のユーザー</p></div><div class="toolbar-right"><label class="toggle"><input type="checkbox" id="userShowInactive"> 無効も表示</label><div class="search-wrap"><span>⌕</span><input id="userSearch" type="search" placeholder="名前・IDで検索"></div></div></div>
+          <div class="table-scroll"><table><thead><tr><th>ユーザー</th><th>ユーザーID</th><th>状態</th><th class="align-right">操作</th></tr></thead><tbody id="userTableBody"></tbody></table></div>
+          <div class="empty-state hidden" id="userEmpty"><div>♙</div><strong>ユーザーが見つかりません</strong><p>検索条件を変更するか、新規ユーザーを登録してください。</p></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-tasks">
+        <div class="page-heading">
+          <div><p class="eyebrow">TASK MANAGEMENT</p><h1>任務種類の管理</h1><p class="subheading">アプリで使用する任務とポイントを管理します。</p></div>
+          <button class="primary-btn" id="addTaskBtn">＋ 任務を追加</button>
+        </div>
+        <div class="content-card">
+          <div class="table-toolbar"><div><h2>登録済み任務</h2><p><span id="taskTableCount">0</span> 件の任務</p></div><div class="toolbar-right"><label class="toggle"><input type="checkbox" id="taskShowInactive"> 無効も表示</label><div class="search-wrap"><span>⌕</span><input id="taskSearch" type="search" placeholder="任務名で検索"></div></div></div>
+          <div class="table-scroll"><table><thead><tr><th>任務名</th><th>ポイント</th><th>状態</th><th class="align-right">操作</th></tr></thead><tbody id="taskTableBody"></tbody></table></div>
+          <div class="empty-state hidden" id="taskEmpty"><div>☷</div><strong>任務が見つかりません</strong><p>検索条件を変更するか、新しい任務を追加してください。</p></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="modalBackdrop">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header"><div><p class="eyebrow" id="modalEyebrow">NEW</p><h2 id="modalTitle">新規登録</h2></div><button class="icon-btn" id="closeModal" aria-label="閉じる">×</button></div>
+      <form id="modalForm">
+        <div id="modalFields"></div>
+        <p class="form-error" id="formError" role="alert"></p>
+        <div class="modal-actions"><button type="button" class="secondary-btn" id="cancelModal">キャンセル</button><button type="submit" class="primary-btn" id="saveModal">登録する</button></div>
+      </form>
+    </section>
+  </div>
+  <div class="toast hidden" id="toast" role="status"></div>
+  <script src="/admin.js"></script>
+</body>
+</html>

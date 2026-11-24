@@ -2,9 +2,12 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     login_id TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user')),
     -- argon2 のハッシュ。NULL のユーザーはログインできない
     password_hash TEXT,
-    task_points INTEGER NOT NULL DEFAULT 0
+    task_points INTEGER NOT NULL DEFAULT 0,
+    -- 削除の代わりに無効にする。無効のユーザーはログインできない
+    is_active BOOLEAN NOT NULL DEFAULT true
 );
 
 -- ログインセッション。トークンはブラウザーの Cookie に置き、DB にはそのハッシュだけを保存する
@@ -24,7 +27,9 @@ CREATE TABLE rand_source (
 CREATE TABLE task_type (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    points INTEGER NOT NULL
+    points INTEGER NOT NULL CHECK (points >= 1),
+    -- 削除の代わりに無効にする
+    is_active BOOLEAN NOT NULL DEFAULT true
 );
 
 CREATE TABLE period (

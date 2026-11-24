@@ -2,109 +2,55 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>ログインページ</title>
-
-    <style>
-        body {
-            font-family: sans-serif;
-            background-color: #f1f5f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .login-box {
-            background-color: white;
-            width: 320px;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        h1 {
-            color: #2563eb;
-            font-size: 24px;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0 15px;
-            box-sizing: border-box;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #1d4ed8;
-        }
-
-        button:disabled {
-            background-color: #94a3b8;
-            cursor: wait;
-        }
-
-        .error {
-            color: #dc2626;
-            font-size: 14px;
-            min-height: 1.2em;
-            margin: 0 0 10px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ログイン | 納得のできる抽選システム</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 
-<body>
+<body class="auth-page">
 
-    <div class="login-box">
-
-        <h1>納得のできる抽選システム</h1>
-
-        <h2>ログイン</h2>
+    <main class="auth-card">
+        <div class="auth-brand">
+            <div class="brand-mark">抽</div>
+            <div>
+                <h1>納得のできる抽選システム</h1>
+                <p>ユーザーIDとパスワードでログインしてください</p>
+            </div>
+        </div>
 
         <form id="login-form">
-            <input type="text"
-                   id="login-id"
-                   name="login_id"
-                   placeholder="ユーザーID"
-                   autocomplete="username"
-                   required>
+            <div class="field">
+                <label for="login-id">ユーザーID</label>
+                <input type="text"
+                       id="login-id"
+                       name="login_id"
+                       placeholder="例: alice"
+                       autocomplete="username"
+                       required>
+            </div>
 
-            <input type="password"
-                   id="password"
-                   name="password"
-                   placeholder="パスワード"
-                   autocomplete="current-password"
-                   required>
+            <div class="field">
+                <label for="password">パスワード</label>
+                <input type="password"
+                       id="password"
+                       name="password"
+                       placeholder="例: alice-password"
+                       autocomplete="current-password"
+                       required>
+            </div>
 
-            <p id="error" class="error" role="alert"></p>
+            <p id="error" class="form-error" role="alert"></p>
 
-            <button type="submit" id="login-button">ログイン</button>
+            <button type="submit" id="login-button" class="primary-btn block-btn">ログイン</button>
         </form>
-
-        <p>新規アカウント登録はこちら</p>
-
-    </div>
+    </main>
 
     <script>
-        const HOME = "/home.html";
+        const destination = (me) => me.role === "admin" ? "/admin.html" : "/home.html";
 
-        // ログイン済みならフォームを飛ばしてマイページへ
-        fetch("/api/me").then((response) => {
-            if (response.ok) location.replace(HOME);
+        // ログイン済みならフォームを飛ばして、管理者ページまたはマイページへ
+        fetch("/api/me").then(async (response) => {
+            if (response.ok) location.replace(destination(await response.json()));
         });
 
         const form = document.getElementById("login-form");
@@ -125,7 +71,9 @@
                     }),
                 });
                 if (response.ok) {
-                    location.replace(HOME);
+                    const meResponse = await fetch("/api/me");
+                    if (!meResponse.ok) throw new Error("ログイン情報を取得できませんでした");
+                    location.replace(destination(await meResponse.json()));
                     return;
                 }
                 const body = await response.json().catch(() => ({}));
